@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "admins": [],
+  "logtofile": "",
+  "logfilefmt": "%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+  "stderrfmt": "%(levelname)s:%(name)s:%(message)s"
+}

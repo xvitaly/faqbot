@@ -1,0 +1,15 @@
+[Unit]
+Description=FAQ bot for Telegram Messenger
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=30
+User=faqbot
+Group=faqbot
+EnvironmentFile=/etc/faqbot/faqbot-env.conf
+ExecStart=/usr/bin/faqbot
+
+[Install]
+WantedBy=multi-user.target

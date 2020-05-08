@@ -1,0 +1,9 @@
+/var/log/faqbot/*.log {
+    create 0664 faqbot root
+    weekly
+    rotate 4
+    missingok
+    notifempty
+    compress
+    sharedscripts
+}
