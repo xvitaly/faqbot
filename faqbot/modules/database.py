@@ -27,7 +27,8 @@ class FAQDatabase:
         :return: Value from database.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT Description FROM Keywords WHERE Keyword=?', (keyword,))
+        cursor.execute('SELECT "Values"."Data" FROM "Meta" INNER JOIN "Values" ON "Values"."ID" = "Meta"."ExtValue"'
+                       'WHERE "Meta"."Keyword" = ?', (keyword,))
         return cursor.fetchone()
 
     def check_exists(self, keyword: str) -> bool:
