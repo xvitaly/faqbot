@@ -122,12 +122,15 @@ class FAQBot:
             """
             try:
                 swreq = ParamExtractor(message.text)
-                dbvalue = self.__database.get_value(swreq.param)
-                msg_text = dbvalue if dbvalue else self.__msgs['fb_notfound']
-                msg_id = message.reply_to_message.message_id if message.reply_to_message else message.message_id
-                self.bot.send_message(message.chat.id, msg_text, reply_to_message_id=msg_id, parse_mode='Markdown')
+                if swreq.index > 0:
+                    dbvalue = self.__database.get_value(swreq.param)
+                    msg_text = dbvalue if dbvalue else self.__msgs['fb_notfound']
+                    msg_id = message.reply_to_message.message_id if message.reply_to_message else message.message_id
+                    self.bot.send_message(message.chat.id, msg_text, reply_to_message_id=msg_id, parse_mode='Markdown')
+                else:
+                    self.bot.send_message(message.chat.id, self.__msgs['fb_faqlink'].format(self.__settings.faqlink))
             except:
-                self.__logger.exception(self.__msgs['fb_pmex'])
+                self.__logger.exception(self.__msgs['fb_faqexpt'])
                 self.bot.reply_to(message, self.__msgs['fb_faqerr'])
 
         # Run bot forever...
@@ -149,6 +152,7 @@ class FAQBot:
             'fb_welcome': 'Please send me `/faq keyword` command and I will search through my database for you.',
             'fb_notoken': 'No API token found. Cannot proceed. Forward API token using ENV option and try again!',
             'fb_pmex': 'Failed to handle command in private chat with bot.',
+            'fb_faqexpt': 'An exception occurred when trying to execute database query.',
             'fb_faqerr': 'Failed to execute your query. Please try again later!',
             'fb_swadd': 'Admin {} ({}) added new keyword {} to database.',
             'fb_swrem': 'Admin {} ({}) removed keyword {} from database.',
@@ -157,7 +161,8 @@ class FAQBot:
             'fb_swerr': 'Failed to add/remove keyword. Try again later.',
             'fb_swpm': 'You must specify a keyword to add/remove. Fix this and try again.',
             'fb_crashed': 'Bot crashed. Scheduling restart in 30 seconds.',
-            'fb_notfound': 'Cannot find anything matching the specified keyword in my database!'
+            'fb_notfound': 'Cannot find anything matching the specified keyword in my database!',
+            'fb_faqlink': 'Please read our FAQ first: {}'
         }
         if not self.__settings.tgkey:
             raise Exception(self.__msgs['fb_notoken'])

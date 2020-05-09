@@ -57,6 +57,14 @@ class Settings:
         return self.__data['logfilefmt']
 
     @property
+    def faqlink(self) -> str:
+        """
+        Get FAQ hyperlink.
+        :return: FAQ hyperlink.
+        """
+        return self.__data['faqlink']
+
+    @property
     def fmterr(self) -> str:
         """
         Get custom formatter for stderr (journald) logs.
@@ -133,7 +141,7 @@ class Settings:
         Main constructor of Settings class.
         :param schid: Required schema version.
         """
-        self.__appname = 'rfaqbot'
+        self.__appname = 'faqbot'
         self.__data = {}
         self.__find_cfgfile()
         if not os.path.isfile(self.__cfgfile):
