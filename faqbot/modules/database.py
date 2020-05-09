@@ -38,8 +38,18 @@ class FAQDatabase:
         :return: Return True if exists.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT COUNT(*) FROM Keywords WHERE Keyword=?', (keyword,))
+        cursor.execute('SELECT COUNT(*) FROM "Meta" WHERE "Meta"."Keyword"=?', (keyword,))
         return cursor.fetchone() > 0
+
+    def __get_internal_id(self, keyword: str) -> int:
+        """
+        Get an internal ID of data.
+        :param keyword: Keyword to check.
+        :return: Internal id.
+        """
+        cursor = self.__connection.cursor()
+        cursor.execute('SELECT "Meta"."ExtValue" FROM "Meta" WHERE "Meta"."Keyword"=?', (keyword,))
+        return int(cursor.fetchone())
 
     def __set_value(self, keyword: str, new_value: str) -> None:
         """
