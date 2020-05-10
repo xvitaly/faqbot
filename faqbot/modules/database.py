@@ -27,8 +27,8 @@ class FAQDatabase:
         :return: Value from database.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT "Values"."Data" FROM "Meta" INNER JOIN "Values" ON "Values"."ID" = "Meta"."ExtValue"'
-                       'WHERE "Meta"."Keyword" = ?', (keyword,))
+        cursor.execute('SELECT "Values"."Data" FROM "Keys" INNER JOIN "Values" ON "Values"."ID" = "Keys"."ExtValue"'
+                       'WHERE "Keys"."Keyword" = ?', (keyword,))
         return cursor.fetchone()
 
     def check_exists(self, keyword: str) -> bool:
@@ -38,7 +38,7 @@ class FAQDatabase:
         :return: Return True if exists.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT COUNT(*) FROM "Meta" WHERE "Meta"."Keyword"=?', (keyword,))
+        cursor.execute('SELECT COUNT(*) FROM "Keys" WHERE "Keys"."Keyword"=?', (keyword,))
         return cursor.fetchone() > 0
 
     def __get_internal_id(self, keyword: str) -> int:
@@ -48,7 +48,7 @@ class FAQDatabase:
         :return: Internal id.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT "Meta"."ExtValue" FROM "Meta" WHERE "Meta"."Keyword"=?', (keyword,))
+        cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword"=?', (keyword,))
         return int(cursor.fetchone())
 
     def __set_value(self, keyword: str, new_value: str) -> None:
