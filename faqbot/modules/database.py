@@ -94,3 +94,9 @@ class FAQDatabase:
         :param dbfile: Full path to SQLite database file.
         """
         self.__connection = sqlite3.connect(dbfile, check_same_thread=False)
+
+    def __del__(self) -> None:
+        """
+        Main destructor of FAQDatabase class.
+        """
+        self.__connection.close()
