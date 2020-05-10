@@ -38,7 +38,9 @@ class FAQDatabase:
         :param keyword: Keyword to check.
         :return: Return True if exists.
         """
-        return self.__get_internal_id(keyword) > 0
+        cursor = self.__connection.cursor()
+        cursor.execute('SELECT COUNT(*) FROM "Keys" WHERE "Keys"."Keyword" = ?;', (keyword,))
+        return cursor.fetchone()[0] > 0
 
     def __get_internal_id(self, keyword: str) -> int:
         """
