@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sqlite3
 
 
@@ -88,12 +89,40 @@ class FAQDatabase:
         cursor = self.__connection.cursor()
         cursor.execute('DELETE FROM Keywords WHERE Keyword=?', (keyword,))
 
+    def __connect_to_database(self) -> None:
+        """
+        Create a database connection.
+        """
+        self.__connection = sqlite3.connect(self.__dbfile, check_same_thread=False)
+
+    def __create_database_file(self) -> None:
+        """
+        Create an empty database file on disk.
+        """
+        with open(self.__dbfile, 'w'):
+            pass
+
+    def __create_database_and_connect(self) -> None:
+        """
+        Create an empty database, add required tables and than create a
+        database connection as required.
+        """
+        self.__create_database_file()
+        self.__connect_to_database()
+        cursor = self.__connection.cursor()
+        cursor.execute('CREATE TABLE "Values" ("ID" INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, "Data" TEXT NOT NULL);')
+        cursor.execute('CREATE TABLE "Keys" ("ID" INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, "Keyword" TEXT NOT NULL UNIQUE, "ExtValue" INTEGER, FOREIGN KEY("ExtValue") REFERENCES "Values"("ID"));')
+
     def __init__(self, dbfile: str) -> None:
         """
         Main constructor of FAQDatabase class.
         :param dbfile: Full path to SQLite database file.
         """
-        self.__connection = sqlite3.connect(dbfile, check_same_thread=False)
+        self.__dbfile = dbfile
+        if os.path.isfile(self.__dbfile):
+            self.__connect_to_database()
+        else:
+            self.__create_database_and_connect()
 
     def __del__(self) -> None:
         """
