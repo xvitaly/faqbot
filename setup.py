@@ -1,6 +1,6 @@
 # coding=utf-8
 
-# Russian Fedora FAQ bot for Telegram Messenger
+# FAQ bot for Telegram Messenger
 # Copyright (c) 2019 - 2020 EasyCoding Team
 #
 # This program is free software: you can redistribute it and/or modify
