@@ -29,7 +29,7 @@ class FAQDatabase:
         """
         cursor = self.__connection.cursor()
         cursor.execute('SELECT "Values"."Data" FROM "Keys" INNER JOIN "Values" ON "Values"."ID" = "Keys"."ExtValue"'
-                       'WHERE "Keys"."Keyword" = ?', (keyword,))
+                       'WHERE "Keys"."Keyword" = ?;', (keyword,))
         return cursor.fetchone()
 
     def check_exists(self, keyword: str) -> bool:
@@ -38,9 +38,7 @@ class FAQDatabase:
         :param keyword: Keyword to check.
         :return: Return True if exists.
         """
-        cursor = self.__connection.cursor()
-        cursor.execute('SELECT COUNT(*) FROM "Keys" WHERE "Keys"."Keyword"=?', (keyword,))
-        return cursor.fetchone() > 0
+        return self.__get_internal_id(keyword) > 0
 
     def __get_internal_id(self, keyword: str) -> int:
         """
@@ -49,8 +47,8 @@ class FAQDatabase:
         :return: Internal id.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword"=?', (keyword,))
-        return int(cursor.fetchone())
+        cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword" = ?;', (keyword,))
+        return int(cursor.fetchone()[0])
 
     def __set_value(self, keyword: str, new_value: str) -> None:
         """
@@ -59,16 +57,26 @@ class FAQDatabase:
         :param new_value: New value.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('UPDATE Keywords SET Description=? WHERE Keyword=?', (new_value, keyword))
+        cursor.execute('UPDATE "Values" SET "Data" = ? WHERE "ID" = ?;', (new_value, self.__get_internal_id(keyword)))
 
-    def __add_value(self, keyword: str, new_value: str) -> None:
+    def __add_value(self, keyword: str, value: str) -> None:
         """
         Add a new value for the specified keyword. Private method.
         :param keyword: Keyword to operate with.
-        :param new_value: New value.
+        :param value: New value.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('INSERT INTO Keywords (ID, Keyword, Description) VALUES (NULL, ?, ?)', (keyword, new_value))
+        cursor.execute('INSERT INTO "Values" ("ID", "Data") VALUES (NULL, ?);', (value,))
+        cursor.execute('INSERT INTO "Keys" ("ID", "Keyword", "ExtValue") VALUES (NULL, ?, ?);', (keyword, cursor.lastrowid))
+        self.__commit_database_changes()
+
+    def add_value(self, keyword: str, value: str) -> None:
+        """
+        Set value for the specified keyword.
+        :param keyword: Keyword to operate with.
+        :param value: New value.
+        """
+        self.__add_value(keyword, value)
 
     def set_value(self, keyword: str, new_value: str) -> None:
         """
@@ -76,18 +84,19 @@ class FAQDatabase:
         :param keyword: Keyword to operate with.
         :param new_value: New value.
         """
-        if self.check_exists(keyword):
-            self.__set_value(keyword, new_value)
-        else:
-            self.__add_value(keyword, new_value)
+        self.__set_value(keyword, new_value)
 
     def remove_value(self, keyword: str) -> None:
         """
         Remove keyboard from the database.
         :param keyword: Keyword to operate with.
         """
-        cursor = self.__connection.cursor()
-        cursor.execute('DELETE FROM Keywords WHERE Keyword=?', (keyword,))
+        kwid = self.__get_internal_id(keyword)
+        if kwid > 0:
+            cursor = self.__connection.cursor()
+            cursor.execute('DELETE FROM "Keys" WHERE "ExtValue" = ?;', (kwid,))
+            cursor.execute('DELETE FROM "Values" WHERE "ID" = ?;', (kwid,))
+            self.__commit_database_changes()
 
     def __connect_to_database(self) -> None:
         """
@@ -102,6 +111,12 @@ class FAQDatabase:
         with open(self.__dbfile, 'w'):
             pass
 
+    def __commit_database_changes(self) -> None:
+        """
+        Save staged changes to file.
+        """
+        self.__connection.commit()
+
     def __create_database_and_connect(self) -> None:
         """
         Create an empty database, add required tables and than create a
@@ -112,6 +127,7 @@ class FAQDatabase:
         cursor = self.__connection.cursor()
         cursor.execute('CREATE TABLE "Values" ("ID" INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, "Data" TEXT NOT NULL);')
         cursor.execute('CREATE TABLE "Keys" ("ID" INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, "Keyword" TEXT NOT NULL UNIQUE, "ExtValue" INTEGER, FOREIGN KEY("ExtValue") REFERENCES "Values"("ID"));')
+        self.__commit_database_changes()
 
     def __init__(self, dbfile: str) -> None:
         """
@@ -128,4 +144,5 @@ class FAQDatabase:
         """
         Main destructor of FAQDatabase class.
         """
+        self.__commit_database_changes()
         self.__connection.close()
