@@ -43,21 +43,14 @@ class FAQBot:
         """
         return message.chat.type == 'private'
 
-    def __get_actual_username(self, message) -> str:
+    def __extract_value(self, source: str) -> tuple:
         """
-        Get a real username of current message's sender.
-        :param message: Message to check.
-        :return: Real username.
+        Get a keyword and its value from the source string.
+        :param source: Source string.
+        :return: Tuple with keyword and its value.
         """
-        return message.reply_to_message.new_chat_member.first_name if message.reply_to_message.new_chat_member else message.reply_to_message.from_user.first_name
-
-    def __get_actual_userid(self, message) -> str:
-        """
-        Get a real ID of current message's sender.
-        :param message: Message to check.
-        :return: Real ID.
-        """
-        return message.reply_to_message.new_chat_member.id if message.reply_to_message.new_chat_member else message.reply_to_message.from_user.id
+        index = source.index(' ')
+        return source[:index], source[index + 1:]
 
     def runbot(self) -> None:
         """
@@ -84,8 +77,21 @@ class FAQBot:
             """
             try:
                 swreq = ParamExtractor(message.text)
-                self.bot.send_message(message.chat.id, self.__msgs['fb_swuadd'].format(swreq.param))
+                if swreq.index > 0:
+                    kw = self.__extract_value(swreq.param)
+                    if not self.__database.check_exists(kw[0]):
+                        self.__database.add_value(kw[0], kw[1])
+                        self.__logger.warning(
+                            self.__msgs['fb_addlog'].format(message.from_user.first_name, message.from_user.id, kw[0]))
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_addmsg'].format(kw[0]),
+                                              parse_mode='Markdown')
+                    else:
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_addexists'].format(kw[0]),
+                                              parse_mode='Markdown')
+                else:
+                    self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
             except:
+                self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
                 self.__logger.exception(self.__msgs['fb_pmex'])
 
         @self.bot.message_handler(func=self.__check_owner_feature, commands=['remove'])
@@ -97,8 +103,21 @@ class FAQBot:
             """
             try:
                 swreq = ParamExtractor(message.text)
-                self.bot.send_message(message.chat.id, self.__msgs['fb_swurem'].format(swreq.param))
+                if swreq.index > 0:
+                    if self.__database.check_exists(swreq.param):
+                        self.__database.remove_value(swreq.param)
+                        self.__logger.warning(
+                            self.__msgs['fb_remlog'].format(message.from_user.first_name, message.from_user.id,
+                                                            swreq.param))
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_remmsg'].format(swreq.param),
+                                              parse_mode='Markdown')
+                    else:
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_notexists'].format(swreq.param),
+                                              parse_mode='Markdown')
+                else:
+                    self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
             except:
+                self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
                 self.__logger.exception(self.__msgs['fb_pmex'])
 
         @self.bot.message_handler(func=self.__check_owner_feature, commands=['edit'])
@@ -109,8 +128,22 @@ class FAQBot:
             :param message: Message, triggered this event.
             """
             try:
-                self.bot.send_message(message.chat.id, 'list')
+                swreq = ParamExtractor(message.text)
+                if swreq.index > 0:
+                    kw = self.__extract_value(swreq.param)
+                    if self.__database.check_exists(kw[0]):
+                        self.__database.set_value(kw[0], kw[1])
+                        self.__logger.warning(
+                            self.__msgs['fb_editlog'].format(message.from_user.first_name, message.from_user.id, kw[0]))
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_editmsg'].format(kw[0]),
+                                              parse_mode='Markdown')
+                    else:
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_notexists'].format(kw[0]),
+                                              parse_mode='Markdown')
+                else:
+                    self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
             except:
+                self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
                 self.__logger.exception(self.__msgs['fb_pmex'])
 
         @self.bot.message_handler(func=lambda m: True, commands=['faq'])
@@ -154,15 +187,18 @@ class FAQBot:
             'fb_pmex': 'Failed to handle command in private chat with bot.',
             'fb_faqexpt': 'An exception occurred when trying to execute database query.',
             'fb_faqerr': 'Failed to execute your query. Please try again later!',
-            'fb_swadd': 'Admin {} ({}) added new keyword {} to database.',
-            'fb_swrem': 'Admin {} ({}) removed keyword {} from database.',
-            'fb_swuadd': 'New keyword {} added to database.',
-            'fb_swurem': 'Keyword {} removed from database.',
-            'fb_swerr': 'Failed to add/remove keyword. Try again later.',
-            'fb_swpm': 'You must specify a keyword to add/remove. Fix this and try again.',
+            'fb_addlog': 'Admin {} ({}) has added a new keyword {} to the database.',
+            'fb_remlog': 'Admin {} ({}) has removed keyword {} from the database.',
+            'fb_editlog': 'Admin {} ({}) has edited the keyword {} in the database.',
+            'fb_addmsg': 'The keyword *{}* was added to the database.',
+            'fb_remmsg': 'The keyword *{}* and all its aliases were removed from the database.',
+            'fb_editmsg': 'The keyword *{}* was updated in the database.',
             'fb_crashed': 'Bot crashed. Scheduling restart in 30 seconds.',
+            'fb_mlreq': 'Malformed request detected! Please check our documentation first.',
             'fb_notfound': 'Cannot find anything matching the specified keyword in my database!',
-            'fb_faqlink': 'Please read our FAQ first: {}'
+            'fb_addexists': 'The *{}* keyword is already exists in our database. No actions will be performed.',
+            'fb_notexists': 'The *{}* keyword does not exists in our database. No actions will be performed.',
+            'fb_faqlink': 'You will find the answers for the most of questions in our unofficial FAQ: {}'
         }
         if not self.__settings.tgkey:
             raise Exception(self.__msgs['fb_notoken'])
