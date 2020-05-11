@@ -146,5 +146,4 @@ class FAQDatabase:
         """
         Main destructor of FAQDatabase class.
         """
-        self.__commit_database_changes()
         self.__connection.close()
