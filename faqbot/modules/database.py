@@ -48,12 +48,12 @@ class FAQDatabase:
         :param keyword: Keyword to check.
         :return: Internal id.
         """
-        try:
-            cursor = self.__connection.cursor()
-            cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword" = ?;', (keyword,))
-            return int(cursor.fetchone()[0])
-        except:
+        cursor = self.__connection.cursor()
+        cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword" = ?;', (keyword,))
+        result = cursor.fetchone()
+        if not result:
             raise Exception('The required keyword does not exists in the database.')
+        return int(result[0])
 
     def __set_value(self, keyword: str, new_value: str) -> None:
         """
