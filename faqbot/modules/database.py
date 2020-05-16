@@ -48,9 +48,12 @@ class FAQDatabase:
         :param keyword: Keyword to check.
         :return: Internal id.
         """
-        cursor = self.__connection.cursor()
-        cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword" = ?;', (keyword,))
-        return int(cursor.fetchone()[0])
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute('SELECT "Keys"."ExtValue" FROM "Keys" WHERE "Keys"."Keyword" = ?;', (keyword,))
+            return int(cursor.fetchone()[0])
+        except:
+            raise Exception('The required keyword does not exists in the database.')
 
     def __set_value(self, keyword: str, new_value: str) -> None:
         """
@@ -71,6 +74,18 @@ class FAQDatabase:
         cursor.execute('INSERT INTO "Values" ("ID", "Data") VALUES (NULL, ?);', (value,))
         cursor.execute('INSERT INTO "Keys" ("ID", "Keyword", "ExtValue") VALUES (NULL, ?, ?);', (keyword, cursor.lastrowid))
         self.__commit_database_changes()
+
+    def __add_alias(self, keyword: str, new_alias: str) -> None:
+        """
+        Add a new alias for the specified keyword. Private method.
+        :param keyword: Keyword to operate with.
+        :param new_alias: New alias.
+        """
+        kwid = self.__get_internal_id(keyword)
+        if kwid > 0:
+            cursor = self.__connection.cursor()
+            cursor.execute('INSERT INTO "Keys" ("ID", "Keyword", "ExtValue") VALUES (NULL, ?, ?);', (new_alias, kwid))
+            self.__commit_database_changes()
 
     def add_value(self, keyword: str, value: str) -> None:
         """
@@ -99,6 +114,14 @@ class FAQDatabase:
             cursor.execute('DELETE FROM "Keys" WHERE "ExtValue" = ?;', (kwid,))
             cursor.execute('DELETE FROM "Values" WHERE "ID" = ?;', (kwid,))
             self.__commit_database_changes()
+
+    def add_alias(self, keyword: str, new_alias: str) -> None:
+        """
+        Add a new alias for the specified keyword.
+        :param keyword: Keyword to operate with.
+        :param new_alias: New alias.
+        """
+        self.__add_alias(keyword, new_alias)
 
     def __connect_to_database(self) -> None:
         """
