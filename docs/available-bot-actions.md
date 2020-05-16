@@ -8,7 +8,10 @@ List of currently supported admin actions:
 
   * `/add KEYWORD DESCRIPTION` (private messages only) - add a new keyword `KEYWORD` to the database;
   * `/remove KEYWORD` (private messages only) - remove the keyword `KEYWORD` from the database;
-  * `/edit KEYWORD NEW_DESCRIPTION` (private messages only) - change description of the keyword `KEYWORD` in the database.
+  * `/edit KEYWORD NEW_DESCRIPTION` (private messages only) - change description of the keyword `KEYWORD` in the database;
+  * `/alias_add KEYWORD ALIAS_NAME` (private messages only) - add a new alias `ALIAS_NAME` to existing keyword `KEYWORD`;
+  * `/alias_remove ALIAS_NAME` (private messages only) - remove existing alias `ALIAS_NAME` from the database;
+  * `/list` (private messages only) - list available keywords.
 
 ## User actions
 
