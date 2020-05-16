@@ -122,6 +122,17 @@ class FAQDatabase:
             cursor.execute('INSERT INTO "Keys" ("ID", "Keyword", "ExtValue") VALUES (NULL, ?, ?);', (new_alias, kwid))
             self.__commit_database_changes()
 
+    def __list_keywords(self) -> list:
+        """
+        List all available keywords from the database. Private method.
+        """
+        result = []
+        cursor = self.__connection.cursor()
+        cursor.execute('SELECT "Keyword" FROM "Keys";')
+        for keyword in cursor.fetchall():
+            result.append(keyword[0])
+        return result
+
     def add_value(self, keyword: str, value: str) -> None:
         """
         Set value for the specified keyword.
@@ -159,6 +170,12 @@ class FAQDatabase:
         :param alias: Alias to operate with.
         """
         self.__remove_alias(alias)
+
+    def list_keywords(self) -> list:
+        """
+        List all available keywords from the database.
+        """
+        return self.__list_keywords()
 
     def __connect_to_database(self) -> None:
         """
