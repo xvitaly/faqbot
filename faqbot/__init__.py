@@ -200,6 +200,20 @@ class FAQBot:
                 self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
                 self.__logger.exception(self.__msgs['fb_pmex'])
 
+        @self.bot.message_handler(func=self.__check_owner_feature, commands=['list'])
+        def handle_list(message) -> None:
+            """
+            Handle /list command in private chats. Allow admins to retrieve the
+            full list of keywords from the main database. Restricted command.
+            :param message: Message, triggered this event.
+            """
+            try:
+                kwlist = ', '.join(self.__database.list_keywords())
+                self.bot.send_message(message.chat.id, self.__msgs['fb_listkw'].format(kwlist))
+            except:
+                self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
+                self.__logger.exception(self.__msgs['fb_pmex'])
+
         @self.bot.message_handler(func=lambda m: True, commands=['faq'])
         def handle_faq(message):
             """
@@ -254,6 +268,7 @@ class FAQBot:
             'fb_crashed': 'Bot crashed. Scheduling restart in 30 seconds.',
             'fb_mlreq': 'Failed to execute your query. Please read bot documentation!',
             'fb_notfound': 'Cannot find anything matching the specified keyword in my database!',
+            'fb_listkw': 'Available keywords: {}.',
             'fb_addexists': 'The *{}* keyword is already exists in our database. No actions will be performed.',
             'fb_notexists': 'The *{}* keyword does not exists in our database. No actions will be performed.',
             'fb_faqlink': 'You will find the answers for the most of questions in our unofficial FAQ: {}'
