@@ -94,8 +94,8 @@ class FAQDatabase:
         :return: Return True if orphaned.
         """
         cursor = self.__connection.cursor()
-        cursor.execute('SELECT COUNT(*) FROM "Values" WHERE "Values"."ID" = ?;', (kwid,))
-        return not cursor.fetchone()[0] > 0
+        cursor.execute('SELECT COUNT(*) FROM "Keys" WHERE "Keys"."ExtValue" = ?;', (kwid,))
+        return cursor.fetchone()[0] == 0
 
     def __remove_alias(self, alias: str) -> None:
         """
