@@ -147,6 +147,33 @@ class FAQBot:
                 self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
                 self.__logger.exception(self.__msgs['fb_pmex'])
 
+        @self.bot.message_handler(func=self.__check_owner_feature, commands=['alias_remove'])
+        def handle_alias_remove(message) -> None:
+            """
+            Handle /alias_remove command in private chats. Allow admins to remove
+            aliases from the main database. Restricted command.
+            :param message: Message, triggered this event.
+            """
+            try:
+                swreq = ParamExtractor(message.text)
+                if swreq.index > 0:
+                    if self.__database.check_exists(swreq.param):
+                        self.__database.remove_alias(swreq.param)
+                        self.__logger.warning(
+                            self.__msgs['fb_alsremlog'].format(message.from_user.first_name, message.from_user.id,
+                                                               swreq.param))
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_alsremmsg'].format(swreq.param),
+                                              parse_mode='Markdown')
+                    else:
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_notexists'].format(swreq.param),
+                                              parse_mode='Markdown')
+                else:
+                    self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
+                    self.__logger.exception(self.__msgs['fb_pmex'])
+            except:
+                self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
+                self.__logger.exception(self.__msgs['fb_pmex'])
+
         @self.bot.message_handler(func=self.__check_owner_feature, commands=['edit'])
         def handle_edit(message) -> None:
             """
@@ -217,10 +244,12 @@ class FAQBot:
             'fb_addlog': 'Admin {} ({}) has added a new keyword {} to the database.',
             'fb_alsaddlog': 'Admin {} ({}) has added a new alias {} for the keyword {} to the database.',
             'fb_remlog': 'Admin {} ({}) has removed keyword {} from the database.',
+            'fb_alsremlog': 'Admin {} ({}) has removed alias {} from the database.',
             'fb_editlog': 'Admin {} ({}) has edited the keyword {} in the database.',
             'fb_addmsg': 'The keyword *{}* was added to the database.',
             'fb_alsaddmsg': 'A new alias *{}* for the keyword *{}* was added to the database.',
             'fb_remmsg': 'The keyword *{}* and all its aliases were removed from the database.',
+            'fb_alsremmsg': 'The alias *{}* was removed from the database.',
             'fb_editmsg': 'The keyword *{}* was updated in the database.',
             'fb_crashed': 'Bot crashed. Scheduling restart in 30 seconds.',
             'fb_mlreq': 'Failed to execute your query. Please read bot documentation!',
