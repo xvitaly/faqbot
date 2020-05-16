@@ -94,6 +94,33 @@ class FAQBot:
                 self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
                 self.__logger.exception(self.__msgs['fb_pmex'])
 
+        @self.bot.message_handler(func=self.__check_owner_feature, commands=['alias_add'])
+        def handle_alias_add(message) -> None:
+            """
+            Handle /alias_add command in private chats. Allow admins to add a new
+            alias to existing entry in the main database. Restricted command.
+            :param message: Message, triggered this event.
+            """
+            try:
+                swreq = ParamExtractor(message.text)
+                if swreq.index > 0:
+                    kw = self.__extract_value(swreq.param)
+                    if self.__database.check_exists(kw[0]) and not self.__database.check_exists(kw[1]):
+                        self.__database.add_alias(kw[0], kw[1])
+                        self.__logger.warning(
+                            self.__msgs['fb_alsaddlog'].format(message.from_user.first_name, message.from_user.id,
+                                                               kw[1], kw[0]))
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_alsaddmsg'].format(kw[1], kw[0]),
+                                              parse_mode='Markdown')
+                    else:
+                        self.bot.send_message(message.chat.id, self.__msgs['fb_addexists'].format(kw[0]),
+                                              parse_mode='Markdown')
+                else:
+                    self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
+            except:
+                self.bot.send_message(message.chat.id, self.__msgs['fb_mlreq'])
+                self.__logger.exception(self.__msgs['fb_pmex'])
+
         @self.bot.message_handler(func=self.__check_owner_feature, commands=['remove'])
         def handle_remove(message) -> None:
             """
@@ -188,13 +215,15 @@ class FAQBot:
             'fb_faqexpt': 'An exception occurred when trying to execute database query.',
             'fb_faqerr': 'Failed to execute your query. Please try again later!',
             'fb_addlog': 'Admin {} ({}) has added a new keyword {} to the database.',
+            'fb_alsaddlog': 'Admin {} ({}) has added a new alias {} for the keyword {} to the database.',
             'fb_remlog': 'Admin {} ({}) has removed keyword {} from the database.',
             'fb_editlog': 'Admin {} ({}) has edited the keyword {} in the database.',
             'fb_addmsg': 'The keyword *{}* was added to the database.',
+            'fb_alsaddmsg': 'A new alias *{}* for the keyword *{}* was added to the database.',
             'fb_remmsg': 'The keyword *{}* and all its aliases were removed from the database.',
             'fb_editmsg': 'The keyword *{}* was updated in the database.',
             'fb_crashed': 'Bot crashed. Scheduling restart in 30 seconds.',
-            'fb_mlreq': 'Malformed request detected! Please check our documentation first.',
+            'fb_mlreq': 'Failed to execute your query. Please read bot documentation!',
             'fb_notfound': 'Cannot find anything matching the specified keyword in my database!',
             'fb_addexists': 'The *{}* keyword is already exists in our database. No actions will be performed.',
             'fb_notexists': 'The *{}* keyword does not exists in our database. No actions will be performed.',
