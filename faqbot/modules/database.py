@@ -44,7 +44,7 @@ class FAQDatabase:
 
     def __get_internal_id(self, keyword: str) -> int:
         """
-        Get an internal ID of data.
+        Get an internal ID of data. Private method.
         :param keyword: Keyword to check.
         :return: Internal id.
         """
@@ -99,7 +99,7 @@ class FAQDatabase:
 
     def __remove_alias(self, alias: str) -> None:
         """
-        Remove alias from the database.
+        Remove alias from the database. Private method.
         :param alias: Alias to operate with.
         """
         kwid = self.__get_internal_id(alias)
@@ -162,27 +162,27 @@ class FAQDatabase:
 
     def __connect_to_database(self) -> None:
         """
-        Create a database connection.
+        Create a database connection. Private method.
         """
         self.__connection = sqlite3.connect(self.__dbfile, check_same_thread=False)
 
     def __create_database_file(self) -> None:
         """
-        Create an empty database file on disk.
+        Create an empty database file on disk. Private method.
         """
         with open(self.__dbfile, 'w'):
             pass
 
     def __commit_database_changes(self) -> None:
         """
-        Save staged changes to file.
+        Save staged changes to file. Private method.
         """
         self.__connection.commit()
 
     def __create_database_and_connect(self) -> None:
         """
         Create an empty database, add required tables and than create a
-        database connection as required.
+        database connection as required. Private method.
         """
         self.__create_database_file()
         self.__connect_to_database()
