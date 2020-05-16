@@ -75,6 +75,41 @@ class FAQDatabase:
         cursor.execute('INSERT INTO "Keys" ("ID", "Keyword", "ExtValue") VALUES (NULL, ?, ?);', (keyword, cursor.lastrowid))
         self.__commit_database_changes()
 
+    def __remove_value(self, keyword: str) -> None:
+        """
+        Remove keyboard from the database. Private method.
+        :param keyword: Keyword to operate with.
+        """
+        kwid = self.__get_internal_id(keyword)
+        if kwid > 0:
+            cursor = self.__connection.cursor()
+            cursor.execute('DELETE FROM "Keys" WHERE "ExtValue" = ?;', (kwid,))
+            cursor.execute('DELETE FROM "Values" WHERE "ID" = ?;', (kwid,))
+            self.__commit_database_changes()
+
+    def __check_if_orphaned(self, kwid: int) -> bool:
+        """
+        Check if value is orphaned. Private method.
+        :param kwid: Value ID.
+        :return: Return True if orphaned.
+        """
+        cursor = self.__connection.cursor()
+        cursor.execute('SELECT COUNT(*) FROM "Values" WHERE "Values"."ID" = ?;', (kwid,))
+        return not cursor.fetchone()[0] > 0
+
+    def __remove_alias(self, alias: str) -> None:
+        """
+        Remove alias from the database.
+        :param alias: Alias to operate with.
+        """
+        kwid = self.__get_internal_id(alias)
+        if kwid > 0:
+            cursor = self.__connection.cursor()
+            cursor.execute('DELETE FROM "Keys" WHERE "Keyword" = ?;', (alias,))
+            if self.__check_if_orphaned(kwid):
+                cursor.execute('DELETE FROM "Values" WHERE "ID" = ?;', (kwid,))
+            self.__commit_database_changes()
+
     def __add_alias(self, keyword: str, new_alias: str) -> None:
         """
         Add a new alias for the specified keyword. Private method.
@@ -108,12 +143,7 @@ class FAQDatabase:
         Remove keyboard from the database.
         :param keyword: Keyword to operate with.
         """
-        kwid = self.__get_internal_id(keyword)
-        if kwid > 0:
-            cursor = self.__connection.cursor()
-            cursor.execute('DELETE FROM "Keys" WHERE "ExtValue" = ?;', (kwid,))
-            cursor.execute('DELETE FROM "Values" WHERE "ID" = ?;', (kwid,))
-            self.__commit_database_changes()
+        self.__remove_value(keyword)
 
     def add_alias(self, keyword: str, new_alias: str) -> None:
         """
@@ -122,6 +152,13 @@ class FAQDatabase:
         :param new_alias: New alias.
         """
         self.__add_alias(keyword, new_alias)
+
+    def remove_alias(self, alias: str) -> None:
+        """
+        Remove alias from the database.
+        :param alias: Alias to operate with.
+        """
+        self.__remove_alias(alias)
 
     def __connect_to_database(self) -> None:
         """
