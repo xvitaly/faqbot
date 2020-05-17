@@ -73,6 +73,14 @@ class Settings:
         return self.__data['stderrfmt']
 
     @property
+    def language(self) -> str:
+        """
+        Get default language for logs.
+        :return: Default language for logs.
+        """
+        return self.__data['language']
+
+    @property
     def database_file(self) -> str:
         """
         Get fully-qualified path to SQLite database file.

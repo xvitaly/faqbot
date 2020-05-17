@@ -4,5 +4,6 @@
   "logtofile": "",
   "logfilefmt": "%(asctime)s - %(levelname)s - %(name)s - %(message)s",
   "stderrfmt": "%(levelname)s:%(name)s:%(message)s",
-  "faqlink": "https://russianfedora.github.io/FAQ/"
+  "faqlink": "https://russianfedora.github.io/FAQ/",
+  "language": "en"
 }
