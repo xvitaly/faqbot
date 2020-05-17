@@ -7,7 +7,8 @@ Available options of `faqbot.json` configuration file:
   * `logtofile` - log file name with full path. If not set or empty, stderr will be used;
   * `logfilefmt` - custom formatter for file logs;
   * `stderrfmt` - custom formatter for stderr logs;
-  * `faqlink` - hyperlink to FAQ index page.
+  * `faqlink` - hyperlink to FAQ index page;
+  * `language` - default language for logs and internal messages.
 
 # Schema changes
 
