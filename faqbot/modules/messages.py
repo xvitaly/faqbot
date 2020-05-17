@@ -20,7 +20,7 @@ from typing import Dict, Union
 
 
 class FAQMessages:
-    __en: Dict[Union[str, str], Union[str, str]] = {
+    _en: Dict[Union[str, str], Union[str, str]] = {
         'fb_welcome': 'Please send me `/faq keyword` command and I will search through my database for you.',
         'fb_notoken': 'No API token found. Cannot proceed. Forward API token using ENV option and try again!',
         'fb_pmex': 'Failed to handle command in private chat with bot.',
@@ -45,7 +45,7 @@ class FAQMessages:
         'fb_faqlink': 'You will find the answers for the most of questions in our unofficial FAQ: {}'
     }
 
-    __ru: Dict[Union[str, str], Union[str, str]] = {
+    _ru: Dict[Union[str, str], Union[str, str]] = {
         'fb_welcome': 'Отправьте мне команду `/faq КЛЮЧ` и я поищу в своей базе данных ссылку или описание.',
         'fb_notoken': 'Не указан API токен, необходимый для работы. Передайте его при помощи переменных окружения!',
         'fb_pmex': 'Произошла ошибка при выполнении команды пользователя.',
@@ -71,6 +71,15 @@ class FAQMessages:
     }
 
     __index: Dict[Union[str, str], Union[str, str]] = {
-        'en': '__en',
-        'ru': '__ru'
+        'en': '_en',
+        'ru': '_ru'
     }
+
+    def get_message(self, key: str, lang: str = 'en') -> str:
+        """
+        Get message depends of specified language.
+        :param key: Message key.
+        :param lang: Required language (EN as fallback).
+        :return: Localized string.
+        """
+        return getattr(self, self.__index[lang])[key]
