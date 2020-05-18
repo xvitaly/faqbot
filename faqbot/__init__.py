@@ -53,6 +53,9 @@ class FAQBot:
         index = source.index(' ')
         return source[:index], source[index + 1:]
 
+    def __load_messages(self):
+        self.__messages = FAQMessages()
+
     def __read_settings(self):
         self.__schema = 1
         self.__settings = Settings(self.__schema)
@@ -256,8 +259,8 @@ class FAQBot:
         """
         Main constructor of FAQBot class.
         """
+        self.__load_messages()
         self.__read_settings()
-        self.__messages = FAQMessages()
         self.__set_logger()
         self.bot = telebot.TeleBot(self.__settings.tgkey)
         self.__database = FAQDatabase(self.__settings.database_file)
