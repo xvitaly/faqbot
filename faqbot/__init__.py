@@ -53,6 +53,12 @@ class FAQBot:
         index = source.index(' ')
         return source[:index], source[index + 1:]
 
+    def __read_settings(self):
+        self.__schema = 1
+        self.__settings = Settings(self.__schema)
+        if not self.__settings.tgkey:
+            raise Exception(self.__messages.get_message('fb_notoken', self.__settings.language))
+
     def runbot(self) -> None:
         """
         Run bot forever.
@@ -238,12 +244,9 @@ class FAQBot:
         """
         Main constructor of FAQBot class.
         """
-        self.__schema = 1
+        self.__read_settings()
         self.__logger = logging.getLogger(__name__)
-        self.__settings = Settings(self.__schema)
         self.__messages = FAQMessages()
-        if not self.__settings.tgkey:
-            raise Exception(self.__messages.get_message('fb_notoken', self.__settings.language))
         self.__logger.setLevel(self.__settings.get_logging_level())
         if self.__settings.logtofile:
             f_handler = logging.FileHandler(self.__settings.logtofile)
