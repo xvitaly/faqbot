@@ -53,16 +53,25 @@ class FAQBot:
         index = source.index(' ')
         return source[:index], source[index + 1:]
 
-    def __load_messages(self):
+    def __load_messages(self) -> None:
+        """
+        Create an instance of FAQMessages class.
+        """
         self.__messages = FAQMessages()
 
-    def __read_settings(self):
+    def __read_settings(self) -> None:
+        """
+        Read settings from JSON configuration file.
+        """
         self.__schema = 1
         self.__settings = Settings(self.__schema)
         if not self.__settings.tgkey:
             raise Exception(self.__messages.get_message('fb_notoken', self.__settings.language))
 
-    def __set_logger(self):
+    def __set_logger(self) -> None:
+        """
+        Set logger engine.
+        """
         self.__logger = logging.getLogger(__name__)
         self.__logger.setLevel(self.__settings.get_logging_level())
         if self.__settings.logtofile:
@@ -74,10 +83,18 @@ class FAQBot:
             e_handler.setFormatter(logging.Formatter(self.__settings.fmterr))
             self.__logger.addHandler(e_handler)
 
-    def __init_bot(self):
+    def __init_bot(self) -> None:
+        """
+        Initialize internal bot engine by creating an instance
+        of TeleBot class.
+        """
         self.__bot = telebot.TeleBot(self.__settings.tgkey)
 
-    def __init_database(self):
+    def __init_database(self) -> None:
+        """
+        Establish connection to the database by creating an
+        instance of FAQDatabase class.
+        """
         self.__database = FAQDatabase(self.__settings.database_file)
 
     def runbot(self) -> None:
