@@ -77,6 +77,9 @@ class FAQBot:
     def __init_bot(self):
         self.__bot = telebot.TeleBot(self.__settings.tgkey)
 
+    def __init_database(self):
+        self.__database = FAQDatabase(self.__settings.database_file)
+
     def runbot(self) -> None:
         """
         Run bot forever.
@@ -266,4 +269,4 @@ class FAQBot:
         self.__read_settings()
         self.__set_logger()
         self.__init_bot()
-        self.__database = FAQDatabase(self.__settings.database_file)
+        self.__init_database()
