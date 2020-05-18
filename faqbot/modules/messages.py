@@ -70,6 +70,14 @@ class FAQMessages:
         'fb_faqlink': 'Ответы на самые популярные вопросы вы всегда найдёте в нашем FAQ: {}'
     }
 
+    __index: Dict[Union[str, str], Union[str, str]] = {
+        'en': '_en',
+        'ru': '_ru',
+        'uk': '_ru',
+        'be': '_ru',
+        'kk': '_ru'
+    }
+
     def get_message(self, key: str, lang: str = 'en') -> str:
         """
         Get message depends on the specified language.
@@ -77,11 +85,10 @@ class FAQMessages:
         :param lang: Required language (EN as fallback).
         :return: Localized string.
         """
-        return getattr(self, self.__index.format(lang))[key] if hasattr(self, self.__index.format(lang)) else \
-            getattr(self, self.__index.format('en'))[key]
+        return getattr(self, self.__index[lang])[key] if lang in self.__index else getattr(self, self.__index['en'])[key]
 
     def __init__(self) -> None:
         """
         Main constructor of FAQMessages class.
         """
-        self.__index = '_{}'
+        pass
