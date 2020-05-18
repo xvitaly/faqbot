@@ -59,6 +59,18 @@ class FAQBot:
         if not self.__settings.tgkey:
             raise Exception(self.__messages.get_message('fb_notoken', self.__settings.language))
 
+    def __set_logger(self):
+        self.__logger = logging.getLogger(__name__)
+        self.__logger.setLevel(self.__settings.get_logging_level())
+        if self.__settings.logtofile:
+            f_handler = logging.FileHandler(self.__settings.logtofile)
+            f_handler.setFormatter(logging.Formatter(self.__settings.fmtlog))
+            self.__logger.addHandler(f_handler)
+        else:
+            e_handler = logging.StreamHandler(sys.stdout)
+            e_handler.setFormatter(logging.Formatter(self.__settings.fmterr))
+            self.__logger.addHandler(e_handler)
+
     def runbot(self) -> None:
         """
         Run bot forever.
@@ -245,16 +257,7 @@ class FAQBot:
         Main constructor of FAQBot class.
         """
         self.__read_settings()
-        self.__logger = logging.getLogger(__name__)
         self.__messages = FAQMessages()
-        self.__logger.setLevel(self.__settings.get_logging_level())
-        if self.__settings.logtofile:
-            f_handler = logging.FileHandler(self.__settings.logtofile)
-            f_handler.setFormatter(logging.Formatter(self.__settings.fmtlog))
-            self.__logger.addHandler(f_handler)
-        else:
-            e_handler = logging.StreamHandler(sys.stdout)
-            e_handler.setFormatter(logging.Formatter(self.__settings.fmterr))
-            self.__logger.addHandler(e_handler)
+        self.__set_logger()
         self.bot = telebot.TeleBot(self.__settings.tgkey)
         self.__database = FAQDatabase(self.__settings.database_file)
