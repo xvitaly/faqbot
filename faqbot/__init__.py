@@ -74,25 +74,28 @@ class FAQBot:
             e_handler.setFormatter(logging.Formatter(self.__settings.fmterr))
             self.__logger.addHandler(e_handler)
 
+    def __init_bot(self):
+        self.__bot = telebot.TeleBot(self.__settings.tgkey)
+
     def runbot(self) -> None:
         """
         Run bot forever.
         """
         # Initialize command handlers...
-        @self.bot.message_handler(func=self.__check_private_chat, commands=['start'])
+        @self.__bot.message_handler(func=self.__check_private_chat, commands=['start'])
         def handle_start(message) -> None:
             """
             Handle /start command in private chats.
             :param message: Message, triggered this event.
             """
             try:
-                self.bot.send_message(message.chat.id,
+                self.__bot.send_message(message.chat.id,
                                       self.__messages.get_message('fb_welcome', message.from_user.language_code),
                                       parse_mode='Markdown')
             except:
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=self.__check_owner_feature, commands=['add'])
+        @self.__bot.message_handler(func=self.__check_owner_feature, commands=['add'])
         def handle_add(message) -> None:
             """
             Handle /add command in private chats. Allow admins to add a new
@@ -107,16 +110,16 @@ class FAQBot:
                         self.__database.add_value(kw[0], kw[1])
                         self.__logger.warning(self.__messages.get_message('fb_addlog', self.__settings.language).format(
                             message.from_user.first_name, message.from_user.id, kw[0]))
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_addmsg', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_addmsg', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
                     else:
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_addexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_addexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
             except:
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=self.__check_owner_feature, commands=['alias_add'])
+        @self.__bot.message_handler(func=self.__check_owner_feature, commands=['alias_add'])
         def handle_alias_add(message) -> None:
             """
             Handle /alias_add command in private chats. Allow admins to add a new
@@ -132,16 +135,16 @@ class FAQBot:
                         self.__logger.warning(
                             self.__messages.get_message('fb_alsaddlog', self.__settings.language).format(
                                 message.from_user.first_name, message.from_user.id, kw[1], kw[0]))
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_alsaddmsg', message.from_user.language_code).format(kw[1], kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_alsaddmsg', message.from_user.language_code).format(kw[1], kw[0]), parse_mode='Markdown')
                     else:
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_addexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_addexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
             except:
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=self.__check_owner_feature, commands=['remove'])
+        @self.__bot.message_handler(func=self.__check_owner_feature, commands=['remove'])
         def handle_remove(message) -> None:
             """
             Handle /remove command in private chats. Allow admins to remove
@@ -155,16 +158,16 @@ class FAQBot:
                         self.__database.remove_value(swreq.param)
                         self.__logger.warning(self.__messages.get_message('fb_remlog', self.__settings.language).format(
                             message.from_user.first_name, message.from_user.id, swreq.param))
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_remmsg', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_remmsg', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
                     else:
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
             except:
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=self.__check_owner_feature, commands=['alias_remove'])
+        @self.__bot.message_handler(func=self.__check_owner_feature, commands=['alias_remove'])
         def handle_alias_remove(message) -> None:
             """
             Handle /alias_remove command in private chats. Allow admins to remove
@@ -179,16 +182,16 @@ class FAQBot:
                         self.__logger.warning(
                             self.__messages.get_message('fb_alsremlog', self.__settings.language).format(
                                 message.from_user.first_name, message.from_user.id, swreq.param))
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_alsremmsg', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_alsremmsg', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
                     else:
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
             except:
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=self.__check_owner_feature, commands=['edit'])
+        @self.__bot.message_handler(func=self.__check_owner_feature, commands=['edit'])
         def handle_edit(message) -> None:
             """
             Handle /edit command in private chats. Allow admins to edit keyword's
@@ -204,16 +207,16 @@ class FAQBot:
                         self.__logger.warning(
                             self.__messages.get_message('fb_editlog', self.__settings.language).format(
                                 message.from_user.first_name, message.from_user.id, kw[0]))
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_editmsg', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_editmsg', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
                     else:
-                        self.bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
             except:
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=self.__check_owner_feature, commands=['list'])
+        @self.__bot.message_handler(func=self.__check_owner_feature, commands=['list'])
         def handle_list(message) -> None:
             """
             Handle /list command in private chats. Allow admins to retrieve the
@@ -222,12 +225,12 @@ class FAQBot:
             """
             try:
                 kwlist = ', '.join(self.__database.list_keywords())
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_listkw', message.from_user.language_code).format(kwlist))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_listkw', message.from_user.language_code).format(kwlist))
             except:
-                self.bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
                 self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
 
-        @self.bot.message_handler(func=lambda m: True, commands=['faq'])
+        @self.__bot.message_handler(func=lambda m: True, commands=['faq'])
         def handle_faq(message):
             """
             Handle /faq command in any chats. Search for the specified
@@ -240,17 +243,17 @@ class FAQBot:
                     dbvalue = self.__database.get_value(swreq.param)
                     msg_text = dbvalue if dbvalue else self.__messages.get_message('fb_notfound', message.from_user.language_code)
                     msg_id = message.reply_to_message.message_id if message.reply_to_message else message.message_id
-                    self.bot.send_message(message.chat.id, msg_text, reply_to_message_id=msg_id, parse_mode='Markdown')
+                    self.__bot.send_message(message.chat.id, msg_text, reply_to_message_id=msg_id, parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, self.__messages.get_message('fb_faqlink', message.from_user.language_code).format(self.__settings.faqlink))
+                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_faqlink', message.from_user.language_code).format(self.__settings.faqlink))
             except:
                 self.__logger.exception(self.__messages.get_message('fb_faqexpt', self.__settings.language))
-                self.bot.reply_to(message, self.__messages.get_message('fb_faqerr', message.from_user.language_code))
+                self.__bot.reply_to(message, self.__messages.get_message('fb_faqerr', message.from_user.language_code))
 
         # Run bot forever...
         while True:
             try:
-                self.bot.polling(none_stop=True)
+                self.__bot.polling(none_stop=True)
             except Exception:
                 self.__logger.exception(self.__messages.get_message('fb_crashed', self.__settings.language))
                 time.sleep(30.0)
@@ -262,5 +265,5 @@ class FAQBot:
         self.__load_messages()
         self.__read_settings()
         self.__set_logger()
-        self.bot = telebot.TeleBot(self.__settings.tgkey)
+        self.__init_bot()
         self.__database = FAQDatabase(self.__settings.database_file)
