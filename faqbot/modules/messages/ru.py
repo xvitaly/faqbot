@@ -19,7 +19,7 @@
 from typing import Dict, Union
 
 
-class FAQMessagesEn:
+class FAQMessagesRu:
     __messages: Dict[Union[str, str], Union[str, str]] = {
         'fb_welcome': 'Отправьте мне команду `/faq КЛЮЧ` и я поищу в своей базе данных ссылку или описание.',
         'fb_notoken': 'Не указан API токен, необходимый для работы. Передайте его при помощи переменных окружения!',
