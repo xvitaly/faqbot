@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .factory import FAQMessagesFactory
-from .en import FAQMessagesEn
-from .ru import FAQMessagesRu
+from .locales.en import FAQMessagesEn
+from .locales.ru import FAQMessagesRu
 
 
 class FAQMessages:
