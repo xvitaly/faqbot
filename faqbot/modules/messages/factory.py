@@ -24,7 +24,7 @@ class FAQMessagesFactory:
     def get_language(self, lang):
         producer = self.__handlers.get(lang)
         if not producer:
-            raise ValueError(lang)
+            return self.__handlers.get('en')
         return producer()
 
     def __init__(self):

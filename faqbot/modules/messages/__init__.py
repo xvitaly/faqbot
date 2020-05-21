@@ -16,7 +16,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .factory import FAQMessagesFactory
+from .en import FAQMessagesEn
+from .ru import FAQMessagesRu
 
-class FAQMessagesFactory:
-    def get_messages(self):
-        pass
+
+class FAQMessages:
+    def __init_factory(self):
+        self.__factory = FAQMessagesFactory()
+
+    def __add_languages(self):
+        self.__factory.add_language('en', FAQMessagesEn)
+        self.__factory.add_language('ru', FAQMessagesRu)
+
+    def get_message(self, key, lang: str = 'en'):
+        return self.__factory.get_language(lang).get_message(key)
+
+    def __init__(self):
+        self.__init_factory()
+        self.__add_languages()
