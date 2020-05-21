@@ -15,3 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+class FAQCommonLocale:
+    def get_message(self, key: str) -> str:
+        """
+        Get message depends on the specified language.
+        :param key: Message key.
+        :return: Localized string.
+        """
+        return self._messages[key]

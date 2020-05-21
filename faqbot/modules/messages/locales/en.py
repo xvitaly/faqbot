@@ -18,9 +18,11 @@
 
 from typing import Dict, Union
 
+from ..locales import FAQCommonLocale
 
-class FAQMessagesEn:
-    __messages: Dict[Union[str, str], Union[str, str]] = {
+
+class FAQMessagesEn(FAQCommonLocale):
+    _messages: Dict[Union[str, str], Union[str, str]] = {
         'fb_welcome': 'Please send me `/faq keyword` command and I will search through my database for you.',
         'fb_notoken': 'No API token found. Cannot proceed. Forward API token using ENV option and try again!',
         'fb_pmex': 'Failed to handle command in private chat with bot.',
@@ -44,11 +46,3 @@ class FAQMessagesEn:
         'fb_notexists': 'The *{}* keyword does not exists in our database. No actions will be performed.',
         'fb_faqlink': 'You will find the answers for the most of questions in our unofficial FAQ: {}'
     }
-
-    def get_message(self, key: str) -> str:
-        """
-        Get message depends on the specified language.
-        :param key: Message key.
-        :return: Localized string.
-        """
-        return self.__messages[key]

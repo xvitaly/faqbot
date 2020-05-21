@@ -18,9 +18,11 @@
 
 from typing import Dict, Union
 
+from ..locales import FAQCommonLocale
 
-class FAQMessagesRu:
-    __messages: Dict[Union[str, str], Union[str, str]] = {
+
+class FAQMessagesRu(FAQCommonLocale):
+    _messages: Dict[Union[str, str], Union[str, str]] = {
         'fb_welcome': 'Отправьте мне команду `/faq КЛЮЧ` и я поищу в своей базе данных ссылку или описание.',
         'fb_notoken': 'Не указан API токен, необходимый для работы. Передайте его при помощи переменных окружения!',
         'fb_pmex': 'Произошла ошибка при выполнении команды пользователя.',
@@ -44,11 +46,3 @@ class FAQMessagesRu:
         'fb_notexists': 'Ключевое слово *{}* не существует в базе данных. Никаких действий не было произведено.',
         'fb_faqlink': 'Ответы на самые популярные вопросы вы всегда найдёте в нашем FAQ: {}'
     }
-
-    def get_message(self, key: str) -> str:
-        """
-        Get message depends on the specified language.
-        :param key: Message key.
-        :return: Localized string.
-        """
-        return self.__messages[key]
