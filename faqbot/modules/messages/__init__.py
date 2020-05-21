@@ -28,6 +28,9 @@ class FAQMessages:
     def __add_languages(self):
         self.__factory.add_language('en', FAQMessagesEn)
         self.__factory.add_language('ru', FAQMessagesRu)
+        self.__factory.add_language('uk', FAQMessagesRu)
+        self.__factory.add_language('be', FAQMessagesRu)
+        self.__factory.add_language('kk', FAQMessagesRu)
 
     def get_message(self, key, lang: str = 'en'):
         return self.__factory.get_language(lang).get_message(key)
