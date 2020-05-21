@@ -16,16 +16,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any
+
 
 class FAQMessagesFactory:
-    def add_language(self, lang, handler):
+    def add_language(self, lang: str, handler: Any) -> None:
+        """
+        Add language mapping.
+        :param lang: Language name.
+        :param handler: Class for working with this language.
+        """
         self.__handlers[lang] = handler
 
     def get_language(self, lang):
+        """
+        Get an instance of the class for working with
+        specified language.
+        :param lang: Language name.
+        :return: Class instance.
+        """
         producer = self.__handlers.get(lang)
         if not producer:
             return self.__handlers.get('en')
         return producer()
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Main constructor of the FAQMessagesFactory class.
+        """
         self.__handlers = {}

@@ -46,4 +46,9 @@ class FAQMessagesEn:
     }
 
     def get_message(self, key: str) -> str:
+        """
+        Get message depends on the specified language.
+        :param key: Message key.
+        :return: Localized string.
+        """
         return self.__messages[key]

@@ -22,19 +22,34 @@ from .ru import FAQMessagesRu
 
 
 class FAQMessages:
-    def __init_factory(self):
+    def __init_factory(self) -> None:
+        """
+        Create the factory instance.
+        """
         self.__factory = FAQMessagesFactory()
 
-    def __add_languages(self):
+    def __add_languages(self) -> None:
+        """
+        Create the language mapping for the factory.
+        """
         self.__factory.add_language('en', FAQMessagesEn)
         self.__factory.add_language('ru', FAQMessagesRu)
         self.__factory.add_language('uk', FAQMessagesRu)
         self.__factory.add_language('be', FAQMessagesRu)
         self.__factory.add_language('kk', FAQMessagesRu)
 
-    def get_message(self, key, lang: str = 'en'):
+    def get_message(self, key: str, lang: str = 'en') -> str:
+        """
+        Get message depends on the specified language.
+        :param key: Message key.
+        :param lang: Required language (EN as a fallback).
+        :return: Localized string.
+        """
         return self.__factory.get_language(lang).get_message(key)
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Main constructor of the FAQMessages class.
+        """
         self.__init_factory()
         self.__add_languages()
