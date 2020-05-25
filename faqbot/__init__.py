@@ -44,6 +44,23 @@ class FAQBot:
         """
         return message.chat.type == 'private'
 
+    def __get_dm(self, msgid: str) -> str:
+        """
+        Get localized string in default language.
+        :param msgid: Message ID.
+        :return: Localized string.
+        """
+        return self.__messages.get_message(msgid, self.__settings.language)
+
+    def __get_lm(self, msgid: str, message) -> str:
+        """
+        Get localized string in user's language.
+        :param msgid: Message ID.
+        :param message: Message, triggered this event.
+        :return: Localized string.
+        """
+        return self.__messages.get_message(msgid, message.from_user.language_code)
+
     def __extract_value(self, source: str) -> tuple:
         """
         Get a keyword and its value from the source string.
@@ -101,6 +118,7 @@ class FAQBot:
         """
         Run bot forever.
         """
+
         # Initialize command handlers...
         @self.__bot.message_handler(func=self.__check_private_chat, commands=['start'])
         def handle_start(message) -> None:
@@ -109,11 +127,9 @@ class FAQBot:
             :param message: Message, triggered this event.
             """
             try:
-                self.__bot.send_message(message.chat.id,
-                                      self.__messages.get_message('fb_welcome', message.from_user.language_code),
-                                      parse_mode='Markdown')
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_welcome', message), parse_mode='Markdown')
             except:
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=self.__check_owner_feature, commands=['add'])
         def handle_add(message) -> None:
@@ -128,16 +144,19 @@ class FAQBot:
                     kw = self.__extract_value(swreq.param)
                     if not self.__database.check_exists(kw[0]):
                         self.__database.add_value(kw[0], kw[1])
-                        self.__logger.warning(self.__messages.get_message('fb_addlog', self.__settings.language).format(
-                            message.from_user.first_name, message.from_user.id, kw[0]))
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_addmsg', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__logger.warning(
+                            self.__get_dm('fb_addlog').format(message.from_user.first_name, message.from_user.id,
+                                                              kw[0]))
+                        self.__bot.send_message(message.chat.id, self.__get_lm('fb_addmsg', message).format(kw[0]),
+                                                parse_mode='Markdown')
                     else:
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_addexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__get_lm('fb_addexists', message).format(kw[0]),
+                                                parse_mode='Markdown')
                 else:
-                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
             except:
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=self.__check_owner_feature, commands=['alias_add'])
         def handle_alias_add(message) -> None:
@@ -153,16 +172,19 @@ class FAQBot:
                     if self.__database.check_exists(kw[0]) and not self.__database.check_exists(kw[1]):
                         self.__database.add_alias(kw[0], kw[1])
                         self.__logger.warning(
-                            self.__messages.get_message('fb_alsaddlog', self.__settings.language).format(
-                                message.from_user.first_name, message.from_user.id, kw[1], kw[0]))
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_alsaddmsg', message.from_user.language_code).format(kw[1], kw[0]), parse_mode='Markdown')
+                            self.__get_dm('fb_alsaddlog').format(message.from_user.first_name, message.from_user.id,
+                                                                 kw[1], kw[0]))
+                        self.__bot.send_message(message.chat.id,
+                                                self.__get_lm('fb_alsaddmsg', message).format(kw[1], kw[0]),
+                                                parse_mode='Markdown')
                     else:
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_addexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__get_lm('fb_addexists', message).format(kw[0]),
+                                                parse_mode='Markdown')
                 else:
-                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
             except:
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=self.__check_owner_feature, commands=['remove'])
         def handle_remove(message) -> None:
@@ -176,16 +198,21 @@ class FAQBot:
                 if swreq.index > 0:
                     if self.__database.check_exists(swreq.param):
                         self.__database.remove_value(swreq.param)
-                        self.__logger.warning(self.__messages.get_message('fb_remlog', self.__settings.language).format(
-                            message.from_user.first_name, message.from_user.id, swreq.param))
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_remmsg', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__logger.warning(
+                            self.__get_dm('fb_remlog').format(message.from_user.first_name, message.from_user.id,
+                                                              swreq.param))
+                        self.__bot.send_message(message.chat.id,
+                                                self.__get_lm('fb_remmsg', message).format(swreq.param),
+                                                parse_mode='Markdown')
                     else:
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id,
+                                                self.__get_lm('fb_notexists', message).format(swreq.param),
+                                                parse_mode='Markdown')
                 else:
-                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
             except:
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=self.__check_owner_feature, commands=['alias_remove'])
         def handle_alias_remove(message) -> None:
@@ -200,16 +227,20 @@ class FAQBot:
                     if self.__database.check_exists(swreq.param):
                         self.__database.remove_alias(swreq.param)
                         self.__logger.warning(
-                            self.__messages.get_message('fb_alsremlog', self.__settings.language).format(
-                                message.from_user.first_name, message.from_user.id, swreq.param))
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_alsremmsg', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                            self.__get_dm('fb_alsremlog').format(message.from_user.first_name, message.from_user.id,
+                                                                 swreq.param))
+                        self.__bot.send_message(message.chat.id,
+                                                self.__get_lm('fb_alsremmsg', message).format(swreq.param),
+                                                parse_mode='Markdown')
                     else:
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(swreq.param), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id,
+                                                self.__get_lm('fb_notexists', message).format(swreq.param),
+                                                parse_mode='Markdown')
                 else:
-                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
             except:
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=self.__check_owner_feature, commands=['edit'])
         def handle_edit(message) -> None:
@@ -225,16 +256,18 @@ class FAQBot:
                     if self.__database.check_exists(kw[0]):
                         self.__database.set_value(kw[0], kw[1])
                         self.__logger.warning(
-                            self.__messages.get_message('fb_editlog', self.__settings.language).format(
-                                message.from_user.first_name, message.from_user.id, kw[0]))
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_editmsg', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                            self.__get_dm('fb_editlog').format(message.from_user.first_name, message.from_user.id,
+                                                               kw[0]))
+                        self.__bot.send_message(message.chat.id, self.__get_lm('fb_editmsg', message).format(kw[0]),
+                                                parse_mode='Markdown')
                     else:
-                        self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_notexists', message.from_user.language_code).format(kw[0]), parse_mode='Markdown')
+                        self.__bot.send_message(message.chat.id, self.__get_lm('fb_notexists', message).format(kw[0]),
+                                                parse_mode='Markdown')
                 else:
-                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
+                    self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
             except:
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=self.__check_owner_feature, commands=['list'])
         def handle_list(message) -> None:
@@ -245,10 +278,10 @@ class FAQBot:
             """
             try:
                 kwlist = ', '.join(self.__database.list_keywords())
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_listkw', message.from_user.language_code).format(kwlist))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_listkw', message).format(kwlist))
             except:
-                self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_mlreq', message.from_user.language_code))
-                self.__logger.exception(self.__messages.get_message('fb_pmex', self.__settings.language))
+                self.__bot.send_message(message.chat.id, self.__get_lm('fb_mlreq', message))
+                self.__logger.exception(self.__get_dm('fb_pmex'))
 
         @self.__bot.message_handler(func=lambda m: True, commands=['faq'])
         def handle_faq(message):
@@ -261,21 +294,23 @@ class FAQBot:
                 swreq = ParamExtractor(message.text)
                 if swreq.index > 0:
                     dbvalue = self.__database.get_value(swreq.param)
-                    msg_text = dbvalue if dbvalue else self.__messages.get_message('fb_notfound', message.from_user.language_code)
+                    msg_text = dbvalue if dbvalue else self.__get_lm('fb_notfound', message)
                     msg_id = message.reply_to_message.message_id if message.reply_to_message else message.message_id
-                    self.__bot.send_message(message.chat.id, msg_text, reply_to_message_id=msg_id, parse_mode='Markdown')
+                    self.__bot.send_message(message.chat.id, msg_text, reply_to_message_id=msg_id,
+                                            parse_mode='Markdown')
                 else:
-                    self.__bot.send_message(message.chat.id, self.__messages.get_message('fb_faqlink', message.from_user.language_code).format(self.__settings.faqlink))
+                    self.__bot.send_message(message.chat.id,
+                                            self.__get_lm('fb_faqlink', message).format(self.__settings.faqlink))
             except:
-                self.__logger.exception(self.__messages.get_message('fb_faqexpt', self.__settings.language))
-                self.__bot.reply_to(message, self.__messages.get_message('fb_faqerr', message.from_user.language_code))
+                self.__logger.exception(self.__get_lm('fb_faqexpt', message))
+                self.__bot.reply_to(message, self.__get_lm('fb_faqerr', message))
 
         # Run bot forever...
         while True:
             try:
                 self.__bot.polling(none_stop=True)
             except Exception:
-                self.__logger.exception(self.__messages.get_message('fb_crashed', self.__settings.language))
+                self.__logger.exception(self.__get_dm('fb_crashed'))
                 time.sleep(30.0)
 
     def __init__(self) -> None:
