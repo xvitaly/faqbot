@@ -5,7 +5,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/xvitaly/faqbot.svg?label=issues&maxAge=60)](https://github.com/xvitaly/faqbot/issues)
 ---
 
-FAQ bot for [Telegram](https://telegram.org/) messenger will find keywords from its database and automatically post hyperlinks.
+FAQ bot for the [Telegram](https://telegram.org/) messenger will find keywords from its database and automatically post them to groups, super-groups or private chats.
 
 Warning! Do not use `dev` branch in production due to possible breaking changes. Use `master` instead.
 

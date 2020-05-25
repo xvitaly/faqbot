@@ -23,7 +23,7 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = faqbot
 PROJECT_NUMBER         = 1.0.0
-PROJECT_BRIEF          = "Russian Fedora FAQ bot for Telegram messenger"
+PROJECT_BRIEF          = "FAQ bot for the Telegram messenger"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = doxyout
 CREATE_SUBDIRS         = NO

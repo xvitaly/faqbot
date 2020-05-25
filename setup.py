@@ -35,5 +35,5 @@ setup(
     install_requires=['pytelegrambotapi', 'requests', 'six'],
     author='Vitaly Zaitsev',
     author_email='vitaly@easycoding.org',
-    description='FAQ bot for Telegram Messenger'
+    description='FAQ bot for the Telegram Messenger'
 )
