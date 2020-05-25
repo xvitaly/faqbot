@@ -28,7 +28,7 @@ class FAQMessagesFactory:
         """
         self.__handlers[lang] = handler
 
-    def get_language(self, lang):
+    def get_language(self, lang: str) -> Any:
         """
         Get an instance of the class for working with
         specified language.
