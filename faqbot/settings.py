@@ -86,7 +86,7 @@ class Settings:
         Get fully-qualified path to SQLite database file.
         :return: Fully-qualified path to main configuration file.
         """
-        return str(os.path.join(self.get_cfgpath(), '{}.db'.format(self.__appname)))
+        return str(os.path.join(self.__get_data_path(), '{}.db'.format(self.__appname)))
 
     def save(self) -> None:
         """
@@ -110,11 +110,11 @@ class Settings:
         """
         return self.__data['schema'] >= schid
 
-    def get_cfgpath(self) -> str:
+    def __get_cfg_path(self) -> str:
         """
         Get directory where bot's configuration are stored.
         User can override this setting by exporting CFGPATH
-        environment option.
+        environment variable.
         :return: Full directory path.
         """
         cfgpath = os.getenv('CFGPATH')
@@ -122,6 +122,19 @@ class Settings:
             if os.path.exists(cfgpath):
                 return cfgpath
         return os.path.join('/etc' if os.name == 'posix' else os.getenv('APPDATA'), self.__appname)
+
+    def __get_data_path(self) -> str:
+        """
+        Get directory where bot's data files are stored.
+        User can override this setting by exporting DATAPATH
+        environment variable.
+        :return: Full directory path.
+        """
+        datapath = os.getenv('DATAPATH')
+        if datapath:
+            if os.path.exists(datapath):
+                return datapath
+        return os.path.join('/var/lib' if os.name == 'posix' else os.getenv('APPDATA'), self.__appname)
 
     @staticmethod
     def get_logging_level() -> int:
@@ -142,7 +155,7 @@ class Settings:
         """
         Get fully-qualified path to main configuration file.
         """
-        self.__cfgfile = str(os.path.join(self.get_cfgpath(), '{}.json'.format(self.__appname)))
+        self.__cfgfile = str(os.path.join(self.__get_cfg_path(), '{}.json'.format(self.__appname)))
 
     def __init__(self, schid) -> None:
         """
